@@ -76,6 +76,9 @@ class PlanOut(BaseModel):
 
 
 class StateOut(BaseModel):
+    status: Literal["active", "paused"] = Field(
+        description="active=运行中；paused=掉电重启后暂停，等待确认实际卷位"
+    )
     current_volume: int | None = Field(description="当前已挂载的卷号（空机为 null）")
     head: int = Field(description="带头当前卷内序号")
     pending: list[str]
@@ -86,9 +89,35 @@ class StateOut(BaseModel):
     history: list[dict]
 
 
+class ResumeIn(BaseModel):
+    """掉电重启后，值班员在 /docs 上报实际的挂载卷号和带头位置。"""
+
+    volume: int | None = Field(
+        default=None, ge=1, description="实际挂载的卷号；null 或不传表示确认空机"
+    )
+    head: int = Field(
+        default=0, ge=0, description="实测带头所在的卷内序号；空机时必须为 0"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"volume": 1, "head": 6},
+                {"volume": None, "head": 0},
+            ]
+        }
+    }
+
+
 class JobOut(BaseModel):
     state: StateOut
     plan: PlanOut
+
+
+class ResumeOut(BaseModel):
+    message: str
+    state: StateOut
+    plan: PlanOut = Field(description="按实测卷位重排后的计划")
 
 
 class ReceiptOut(BaseModel):

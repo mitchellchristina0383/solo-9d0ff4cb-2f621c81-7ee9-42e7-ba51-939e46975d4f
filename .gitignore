@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# 本地运行的作业状态快照（容器内写到挂载卷 /data，不进镜像）
+tape_state.json
+.tape-state-*.tmp

@@ -3,6 +3,14 @@ services:
     build: .
     image: tape-drive-sim:latest
     container_name: tape-drive-sim
+    environment:
+      # 状态快照写到挂载卷；容器重建/掉电重启后从最后一次写盘成功的记录恢复
+      TAPE_STATE_FILE: /data/tape_state.json
     ports:
       - "8000:8000"
+    volumes:
+      - tape-state:/data
     restart: unless-stopped
+
+volumes:
+  tape-state:
